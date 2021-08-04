@@ -19,12 +19,14 @@ impl WebsiteHandler {
 
 impl Handler for WebsiteHandler {
     fn handle_request(&mut self, request: &Request) -> Response {
-        //Response::new(StatusCode::Ok, Some("<h1>TEST!!</h>".to_string()))
         match request.method() {
-            &Method::GET => match request.path() {
+            Method::GET => match request.path() {
                 "/" => Response::new(StatusCode::Ok, self.read_file("index.html")),
                 "/hello" => Response::new(StatusCode::Ok, self.read_file("hello.html")),
-                _ => Response::new(StatusCode::NotFound, None),
+                path => match self.read_file(path) {
+                    Some(contents) => Response::new(StatusCode::Ok, Some(contents)),
+                    None => Response::new(StatusCode::NotFound, None),
+                },
             },
             _ => Response::new(StatusCode::NotFound, None),
         }
